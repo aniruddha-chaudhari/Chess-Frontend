@@ -13,6 +13,7 @@ const Game = () => {
   const socket = useSocket();
   const [chess, setChess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     if (!socket) {
@@ -24,9 +25,9 @@ const Game = () => {
       switch (message.type) {
         case INIT_GAME:
           const newChess = new Chess();
-          setChess(newChess);
           setBoard(newChess.board());
           console.log('init game');
+          setStarted(true);
           break;
         case MOVE:
           const move = message.payload;
@@ -53,17 +54,17 @@ const Game = () => {
         <div className='grid grid-cols-6 gap-4 w-full'>
           <div className='col-span-4 flex justify-center items-center'>
             <div className='w-full max-w-lg'>
-              <Chessboard socket={socket} board={board} />
+              <Chessboard chess={chess} setBoard={setBoard} socket={socket} board={board} />
             </div>
           </div>
           <div className='col-span-2 bg-slate-900 flex justify-center items-center'>
-            <Button onClick={() => {
+            {!started &&<Button onClick={() => {
               socket.send(JSON.stringify({
                 type: INIT_GAME,
               }));
             }}>
               PLAY
-            </Button>
+            </Button>}
           </div>
         </div>
       </div>
